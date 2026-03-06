@@ -1,0 +1,171 @@
+@import url('index.css');
+@import "tailwindcss";
+
+/* ============================================================
+   ASPR DT  -  Shared Design Tokens & Component Styles
+   Extracted from Figma: ASPR-Post-FOC-10-2025
+   ============================================================ */
+
+:root {
+  /* ---- Brand / Primary ---- */
+  --color-brand-dark:       #062E61;   /* ASPR logo blue */
+  --color-brand-primary:    #155098;   /* Nav bottom-border */
+  --color-brand-accent:     #1C63A9;   /* Primary button bg */
+  --color-brand-link:       #1F6AB0;   /* Active nav link */
+
+  /* ---- MCI event theme ---- */
+  --color-mci-primary:      #492781;   /* MCI purple */
+  --color-mci-secondary:    #F0E7FF;   /* MCI light purple bg */
+
+  /* ---- Neutrals ---- */
+  --color-white:            #FFFFFF;
+  --color-black:            #101010;
+  --color-text-dark:        #1F1F1F;
+  --color-grey:             #888888;
+  --color-grey-wcag:        #767676;   /* WCAG-AA grey */
+  --color-border:           #BBBBBB;
+  --color-bg-light:         #F5F5F5;
+  --color-bg-page:          #EAEAEA;
+  --color-row-hover:        #F0F4FA;
+  --color-row-alt:          #FAFAFA;
+
+  /* ---- Status / Semantic ---- */
+  --color-success:          #2E7D32;
+  --color-warning:          #F9A825;
+  --color-error:            #D32F2F;
+  --color-info:             #1565C0;
+
+  /* ---- Triage Levels ---- */
+  --triage-immediate-bg:    #D32F2F;   /* Red */
+  --triage-immediate-text:  #FFFFFF;
+  --triage-delayed-bg:      #F9A825;   /* Yellow / Amber */
+  --triage-delayed-text:    #1F1F1F;
+  --triage-minor-bg:        #388E3C;   /* Green */
+  --triage-minor-text:      #FFFFFF;
+  --triage-expectant-bg:    #212121;   /* Black / Dark grey */
+  --triage-expectant-text:  #FFFFFF;
+  --triage-deceased-bg:     #757575;   /* Grey */
+  --triage-deceased-text:   #FFFFFF;
+
+  /* ---- Discharge status ---- */
+  --dc-pending-bg:          #FFF3E0;
+  --dc-pending-text:        #E65100;
+  --dc-ready-bg:            #E8F5E9;
+  --dc-ready-text:          #2E7D32;
+  --dc-transferred-bg:      #E3F2FD;
+  --dc-transferred-text:    #1565C0;
+
+  /* ---- Typography ---- */
+  --font-primary:           'Lato', 'Helvetica Neue', Arial, sans-serif;
+
+  --fs-xs:    11px;
+  --fs-sm:    12px;
+  --fs-base:  14px;
+  --fs-md:    16px;
+  --fs-lg:    18px;
+  --fs-xl:    20px;
+  --fs-2xl:   24px;
+
+  --fw-regular:  400;
+  --fw-bold:     700;
+
+  /* ---- Spacing ---- */
+  --sp-2:   2px;
+  --sp-4:   4px;
+  --sp-6:   6px;
+  --sp-8:   8px;
+  --sp-10:  10px;
+  --sp-12:  12px;
+  --sp-16:  16px;
+  --sp-20:  20px;
+  --sp-24:  24px;
+  --sp-32:  32px;
+
+  /* ---- Borders / Radii ---- */
+  --radius-sm:  4px;
+  --radius-md:  6px;
+  --radius-lg:  10px;
+  --radius-full: 50%;
+
+  --shadow-sm:  -2px 2px 4px rgba(0,0,0,0.1);
+  --shadow-md:  0 2px 8px rgba(0,0,0,0.12);
+  --shadow-lg:  0 4px 16px rgba(0,0,0,0.15);
+}
+
+body {
+  font-family: var(--font-primary);
+  font-weight: var(--fw-regular);
+  color: var(--color-text-dark);
+  background: var(--color-bg-page);
+  line-height: 1.4;
+}
+
+/* Custom Triage Badges */
+.triage-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--color-white);
+  line-height: 1;
+}
+
+.triage-badge--immediate { background: var(--triage-immediate-bg); }
+.triage-badge--delayed   { background: var(--triage-delayed-bg); color: var(--triage-delayed-text); }
+.triage-badge--minor     { background: var(--triage-minor-bg); }
+.triage-badge--expectant { background: var(--triage-expectant-bg); }
+.triage-badge--deceased  { background: var(--triage-deceased-bg); }
+
+/* Custom Tags */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-2) var(--sp-8);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  line-height: 16px;
+  letter-spacing: -0.24px;
+  white-space: nowrap;
+}
+
+.tag--mci {
+  background: var(--color-mci-secondary);
+  color: var(--color-mci-primary);
+  border: 1px solid var(--color-mci-primary);
+}
+
+.tag--admitted {
+  background: #E3F2FD;
+  color: #1565C0;
+  border: 1px solid #1565C0;
+}
+
+.tag--transfer-ordered {
+  background: var(--dc-pending-bg);
+  color: var(--dc-pending-text);
+  border: 1px solid var(--dc-pending-text);
+}
+
+.tag--in-transit {
+  background: #FFF8E1;
+  color: #F57F17;
+  border: 1px solid #F57F17;
+}
+
+.tag--transfer-complete {
+  background: var(--dc-ready-bg);
+  color: var(--dc-ready-text);
+  border: 1px solid var(--dc-ready-text);
+}
+
+.tag--discharged {
+  background: #F3E5F5;
+  color: #7B1FA2;
+  border: 1px solid #7B1FA2;
+}
