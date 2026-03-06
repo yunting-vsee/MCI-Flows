@@ -12,43 +12,38 @@ interface Props {
 
 export function TransferNoteModal({ patient, mode, onClose, onConfirm }: Props) {
   const [status, setStatus] = useState<string>(
-    mode === 'update' ? 'Transfer Complete' : 
+    mode === 'update' ? 'Transfer Complete' :
     (patient.transferNote?.status || 'In-Transit')
   );
-  
-  const [toCode, setToCode] = useState(patient.transferNote?.toCode || '');
+
+  const planPrefill = mode === 'transfer' &&
+    patient.status === PatientStatus.DISCHARGED &&
+    patient.dischargePlan?.disposition === 'Transfer'
+    ? patient.dischargePlan
+    : null;
+
+  const [toCode, setToCode] = useState(planPrefill?.destinationSite || patient.transferNote?.toCode || '');
   const [transport, setTransport] = useState(patient.transferNote?.transport || 'Private vehicle');
   const [ambulanceId, setAmbulanceId] = useState(patient.transferNote?.ambulanceId || '');
   const [jpats, setJpats] = useState(patient.transferNote?.jpats || false);
   const [jpatsNumber, setJpatsNumber] = useState(patient.transferNote?.jpatsNumber || '');
   const [details, setDetails] = useState(patient.transferNote?.details || '');
-  
+
   const [receivingSite, setReceivingSite] = useState(patient.transferNote?.toCode || '');
   const [completeDetails, setCompleteDetails] = useState(patient.transferNote?.completeDetails || '');
   const [receivingTime, setReceivingTime] = useState(patient.transferNote?.receivingTime || '');
 
-  const [specialty, setSpecialty] = useState(patient.transferNote?.specialty || '');
-  const [bedCategory, setBedCategory] = useState(patient.transferNote?.bedCategory || '');
-  const [additionalCapabilities, setAdditionalCapabilities] = useState<string[]>(patient.transferNote?.additionalCapabilities || []);
+  const [specialty, setSpecialty] = useState(planPrefill?.specialty || patient.transferNote?.specialty || '');
+  const [bedCategory, setBedCategory] = useState(planPrefill?.bedCategory || patient.transferNote?.bedCategory || '');
+  const [additionalCapabilities, setAdditionalCapabilities] = useState<string[]>(planPrefill?.additionalCapabilities || patient.transferNote?.additionalCapabilities || []);
   const [isCapabilityOpen, setIsCapabilityOpen] = useState(false);
   const capabilityRef = useRef<HTMLDivElement>(null);
-  
+
   const [dispositionTime, setDispositionTime] = useState(patient.transferNote?.dispositionTime || '');
   const [dispositionDetails, setDispositionDetails] = useState(patient.transferNote?.dispositionDetails || '');
 
-  const [transitTime, setTransitTime] = useState(patient.transferNote?.transitTime || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
+  const [transitTime, setTransitTime] = useState(planPrefill?.dispositionDate || patient.transferNote?.transitTime || new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16));
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    if (mode === 'transfer' && patient.status === PatientStatus.DISCHARGED && patient.dischargePlan?.disposition === 'Transfer') {
-      const plan = patient.dischargePlan;
-      if (plan.destinationSite) setToCode(plan.destinationSite);
-      if (plan.specialty) setSpecialty(plan.specialty);
-      if (plan.bedCategory) setBedCategory(plan.bedCategory);
-      if (plan.additionalCapabilities) setAdditionalCapabilities(plan.additionalCapabilities);
-      if (plan.dispositionDate) setTransitTime(plan.dispositionDate);
-    }
-  }, [patient, mode]);
 
   const getCurrentTime = () => {
     return new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -171,10 +166,14 @@ export function TransferNoteModal({ patient, mode, onClose, onConfirm }: Props) 
       };
     }
 
-    await updatePatient(patient.id, { 
-      status: newStatus, 
-      transferNote: note as TransferNote 
-    });
+    const updateData: Partial<Patient> = {
+      status: newStatus,
+      transferNote: note as TransferNote,
+    };
+    if (status === 'Transfer Complete' && receivingSite) {
+      updateData.site = sites.find(s => s.code === receivingSite)?.name || receivingSite;
+    }
+    await updatePatient(patient.id, updateData);
     onConfirm();
   };
 
@@ -234,14 +233,13 @@ export function TransferNoteModal({ patient, mode, onClose, onConfirm }: Props) 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
                   <label className="text-sm font-bold text-[#1f1f1f]">Specialty</label>
-                  <select 
-                    className="w-full h-[38px] px-3 border border-[#DFDFDF] rounded bg-white text-sm font-medium focus:outline-none focus:border-[#1C63A9] focus:ring-2 focus:ring-[#1C63A9]/15 disabled:bg-[#F5F5F5]" 
-                    value={specialty} 
+                  <select
+                    className="w-full h-[38px] px-3 border border-[#DFDFDF] rounded bg-white text-sm font-medium focus:outline-none focus:border-[#1C63A9] focus:ring-2 focus:ring-[#1C63A9]/15"
+                    value={specialty}
                     onChange={e => setSpecialty(e.target.value)}
-                    disabled={!toCode}
                   >
                     <option value="">— Select —</option>
-                    {toCode && specialtyOptions[toCode]?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    {(toCode ? (specialtyOptions[toCode] || []) : [...new Set(Object.values(specialtyOptions).flat())]).map(opt => <option key={opt} value={opt}>{opt}</option>)}
                   </select>
                 </div>
                 <div className="flex flex-col gap-1">

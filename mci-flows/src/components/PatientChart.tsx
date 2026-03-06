@@ -157,8 +157,8 @@ export function PatientChart() {
 
   if (!patient) return <div className="p-8">Patient not found</div>;
 
-  const isDischargePlanReadOnly = patient.status === PatientStatus.DISCHARGED || patient.status === PatientStatus.DISCHARGED_COMPLETE;
-  const isDischargeProcessReadOnly = patient.status === PatientStatus.DISCHARGED_COMPLETE;
+  const isDischargePlanReadOnly = !!patient.dischargePlan;
+  const isDischargeProcessReadOnly = patient.status === PatientStatus.DISCHARGED_COMPLETE || patient.dischargePlan?.status === 'Replaced';
 
   const handleSignAndOrderDischarge = async () => {
     const newErrors: Record<string, boolean> = {};
@@ -295,7 +295,8 @@ export function PatientChart() {
 
     await updatePatient(patient.id, {
       status: PatientStatus.DISCHARGED_COMPLETE,
-      documentation: newDocumentation
+      documentation: newDocumentation,
+      ...(patient.dischargePlan ? { dischargePlan: { ...patient.dischargePlan, status: 'Replaced' } } : {})
     });
     navigate('/');
   };
@@ -778,7 +779,7 @@ export function PatientChart() {
                               disabled={isDischargePlanReadOnly}
                             >
                               <option value="">— Select —</option>
-                              {specialtyOptions[facility]?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                              {(facility ? (specialtyOptions[facility] || []) : [...new Set(Object.values(specialtyOptions).flat())]).map(opt => <option key={opt} value={opt}>{opt}</option>)}
                             </select>
                           </div>
                           <div>

@@ -58,18 +58,23 @@ export function TrackingBoard() {
     if (filterPatients.includes('Active Patients') && isActive) matchesPatientType = true;
     if (filterPatients.length === 0) matchesPatientType = true;
 
-    // Site filter
+    // Site filter - use effective site based on patient status
     let matchesSite = false;
     if (filterSites.length === 0) {
       matchesSite = true;
     } else {
-      const patientSites = [p.site];
-      if (p.transferNote?.fromSite) patientSites.push(p.transferNote.fromSite);
-      if (p.transferNote?.toCode) patientSites.push(p.transferNote.toCode);
-      
-      if (filterSites.includes('Site 1') && (patientSites.includes('SITE1') || patientSites.includes('Site 1'))) matchesSite = true;
-      if (filterSites.includes('Central Hospital') && (patientSites.includes('CH') || patientSites.includes('Central Hospital'))) matchesSite = true;
-      if (filterSites.includes('George Washington University Hospital') && (patientSites.includes('GWUH') || patientSites.includes('George Washington University Hospital'))) matchesSite = true;
+      let effectiveSite: string;
+      if (p.status === PatientStatus.IN_TRANSIT && p.transferNote?.toCode) {
+        effectiveSite = p.transferNote.toCode;
+      } else if ((p.status === PatientStatus.DISCHARGED || p.status === PatientStatus.DISCHARGED_COMPLETE) && p.dischargePlan?.destinationSite) {
+        effectiveSite = p.dischargePlan.destinationSite;
+      } else {
+        effectiveSite = p.site;
+      }
+
+      if (filterSites.includes('Site 1') && (effectiveSite === 'SITE1' || effectiveSite === 'Site 1')) matchesSite = true;
+      if (filterSites.includes('Central Hospital') && (effectiveSite === 'CH' || effectiveSite === 'Central Hospital')) matchesSite = true;
+      if (filterSites.includes('George Washington University Hospital') && (effectiveSite === 'GWUH' || effectiveSite === 'George Washington University Hospital')) matchesSite = true;
     }
 
     // Patient Location filter
@@ -84,6 +89,22 @@ export function TrackingBoard() {
 
     return matchesSearch && matchesPatientType && matchesSite && matchesLocation;
   });
+
+  const siteNameMap: Record<string, string> = {
+    'SITE1': 'Site 1',
+    'CH': 'Central Hospital',
+    'GWUH': 'George Washington University Hospital',
+    'EMS': 'EMS Transit Unit',
+  };
+
+  const siteCodeMap: Record<string, string> = {
+    'Site 1': 'SITE1',
+    'Central Hospital': 'CH',
+    'George Washington University Hospital': 'GWUH',
+    'EMS Transit Unit': 'EMS',
+  };
+
+  const toSiteCode = (site: string) => siteCodeMap[site] || site;
 
   const getTriageClass = (code: TriageCode) => {
     switch (code) {
@@ -292,7 +313,13 @@ export function TrackingBoard() {
           <tbody>
             {filtered.map(p => (
               <tr key={p.id} className="hover:bg-[#F0F4FA] border-b border-[#E8E8E8] h-[38px]">
-                <td className="px-1.5 py-1">{p.status === PatientStatus.IN_TRANSIT && p.transferNote ? p.transferNote.toCode : p.site}</td>
+                <td className="px-1.5 py-1">
+                  {p.status === PatientStatus.IN_TRANSIT && p.transferNote
+                    ? p.transferNote.toCode
+                    : (p.status === PatientStatus.DISCHARGED || p.status === PatientStatus.DISCHARGED_COMPLETE) && p.dischargePlan?.destinationSite
+                      ? p.dischargePlan.destinationSite
+                      : toSiteCode(p.site)}
+                </td>
                 <td className="px-1.5 py-1">{p.bed}</td>
                 <td className="px-1.5 py-1 text-center">
                   <span className={`triage-badge ${getTriageClass(p.triageLevel)}`}>{p.triageLevel}</span>
