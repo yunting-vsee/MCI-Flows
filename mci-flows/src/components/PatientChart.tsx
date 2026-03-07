@@ -372,7 +372,7 @@ export function PatientChart() {
       </div>
 
       {/* Right Content Area */}
-      <div className="flex-1 p-4 overflow-auto">
+      <div className="flex-1 p-4">
         {/* Patient Header Card */}
         <div className="bg-white rounded-lg shadow-sm border border-[#BBBBBB] p-4 mb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
