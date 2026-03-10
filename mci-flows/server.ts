@@ -264,6 +264,7 @@ async function startServer() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
+      root: __dirname,
       server: { middlewareMode: true },
       appType: 'spa',
     });
