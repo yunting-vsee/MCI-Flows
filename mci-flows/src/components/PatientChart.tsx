@@ -162,11 +162,6 @@ export function PatientChart() {
 
   const handleSignAndOrderDischarge = async () => {
     const newErrors: Record<string, boolean> = {};
-    if (!acuity) newErrors.acuity = true;
-    if (disposition === 'Transfer') {
-      if (!specialty) newErrors.specialty = true;
-      if (!bedCategory) newErrors.bedCategory = true;
-    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -721,7 +716,7 @@ export function PatientChart() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-[#101010] mb-1">Discharge Acuity <span className="text-[#D32F2F]">*</span></label>
+                        <label className="block text-sm font-bold text-[#101010] mb-1">Discharge Acuity</label>
                         <select 
                           className={`w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#1C63A9]/15 ${errors.acuity ? 'border-[#D32F2F] bg-[#FDECEA]' : 'border-[#BBBBBB] bg-white'} ${isDischargePlanReadOnly ? 'bg-[#F5F5F5] cursor-not-allowed' : ''}`} 
                           value={acuity} 
@@ -768,7 +763,7 @@ export function PatientChart() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-sm font-bold text-[#101010] mb-1">Specialty <span className="text-[#D32F2F]">*</span></label>
+                            <label className="block text-sm font-bold text-[#101010] mb-1">Specialty</label>
                             <select 
                               className={`w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#1C63A9]/15 ${errors.specialty ? 'border-[#D32F2F] bg-[#FDECEA]' : 'border-[#BBBBBB] bg-white'} ${isDischargePlanReadOnly ? 'bg-[#F5F5F5] cursor-not-allowed' : ''}`} 
                               value={specialty} 
@@ -783,7 +778,7 @@ export function PatientChart() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-sm font-bold text-[#101010] mb-1">Bed Category <span className="text-[#D32F2F]">*</span></label>
+                            <label className="block text-sm font-bold text-[#101010] mb-1">Bed Category</label>
                             <select 
                               className={`w-full p-2 border rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#1C63A9]/15 ${errors.bedCategory ? 'border-[#D32F2F] bg-[#FDECEA]' : 'border-[#BBBBBB] bg-white'} ${isDischargePlanReadOnly ? 'bg-[#F5F5F5] cursor-not-allowed' : ''}`} 
                               value={bedCategory} 
